@@ -1,6 +1,7 @@
 # 📈 Trade Analytics
 
 Visualizador de ações com dados históricos armazenados em banco PostgreSQL (Neon) e interface interativa em Streamlit.
+🌐 **[Acesse a versão online aqui](https://tradeanalytics.streamlit.app/)**
 
 ## 🚀 Funcionalidades
 - Filtro por **setor** e **indústria** (opcionais)
