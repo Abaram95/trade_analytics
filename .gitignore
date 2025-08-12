@@ -1,3 +1,25 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+.dist/
+build/
 .env
+.venv/
+venv/
+
+# Streamlit/Logs
+.streamlit/secrets.toml
 logs/
-.venv
+.update_*.log
+
+# OS/IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Notebooks temporários
+.ipynb_checkpoints/
