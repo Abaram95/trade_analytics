@@ -2,9 +2,8 @@ name: Daily DB Update
 
 on:
   schedule:
-    
-    - cron: "00 3 * * 1-5"   # seg–sex 06:30 UTC
-  workflow_dispatch: {}       # permite rodar manualmente pelo GitHub
+    - cron: "30 23 * * 1-5"   # seg–sex 06:30 UTC (~03:30 Brasília)
+  workflow_dispatch: {}
 
 concurrency:
   group: update-database
@@ -37,18 +36,8 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run updater (with retries)
+      - name: Run updater
         env:
           NEONBASE_URL: ${{ secrets.NEONBASE_URL }}
         run: |
-          set -euxo pipefail
-          python - <<'PY'
-          import time, subprocess, sys
-          for i in range(3):
-              try:
-                  subprocess.check_call([sys.executable, "-m", "update_all.py"])
-                  sys.exit(0)
-              except subprocess.CalledProcessError:
-                  if i==2: raise
-                  time.sleep(30)
-          PY
+          python update_all.py
