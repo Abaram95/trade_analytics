@@ -1,0 +1,10 @@
+echo 
+"__pycache__/
+*.pyc
+.env
+*.db
+logs/
+notebook/
+.streamlit/secrets.toml
+.venv
+" > .gitignore
