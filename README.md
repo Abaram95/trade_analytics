@@ -13,6 +13,21 @@ Visualizador de ações com dados históricos armazenados em banco PostgreSQL (N
 - Atualização incremental diária dos dados via `yfinance`
 - Dados armazenados no banco (evita re-downloads e acelera consultas)
 
+---
+
+## 📸 Capturas de Tela
+
+### Tela Inicial
+![Tela inicial](Images/tela_principal.png)
+
+### Comparação com o Setor
+![Comparação Setor](Images/comparacao_setor.png)
+
+### Estatísticas Rolling
+![Rolling Stats](Images/rolling_metrics.png)
+
+---
+
 
 ## ⚠️ Disclaimer
 Este projeto tem caráter **educacional e exploratório**.  
