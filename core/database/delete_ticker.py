@@ -1,36 +1,54 @@
 from sqlalchemy import text
-from core.database.engine import engine
+from engine2 import engine
 
-def delete_ticker(ticker: str):
+def delete_tickers(tickers: list[str]):
     """
-    Deleta todos os registros de um ticker das tabelas `stocks` e `companies`.
+    Deleta todos os registros de uma lista de tickers das tabelas `stocks` e `companies`.
     """
-    with engine.connect() as conn:
-        try:
-            stock_count = conn.execute(text("SELECT COUNT(*) FROM stocks WHERE ticker = :ticker"), {"ticker": ticker}).scalar()
-            company_count = conn.execute(text("SELECT COUNT(*) FROM companies WHERE ticker = :ticker"), {"ticker": ticker}).scalar()
+    if not tickers:
+        print("Nenhum ticker informado.")
+        return
 
-            if stock_count == 0 and company_count == 0:
-                print(f"Nenhum registro encontrado para o ticker '{ticker}'. Nada a deletar.")
-                return
+    # Normaliza para upper e remove duplicatas
+    tickers = list({t.strip().upper() for t in tickers if t.strip()})
+    if not tickers:
+        print("Lista de tickers vazia após limpeza.")
+        return
 
-            print(f"\nForam encontrados:")
-            print(f"  → {stock_count} registros em 'stocks'")
-            print(f"  → {company_count} registros em 'companies'\n")
+    try:
+        with engine.connect() as conn:
+            results = {}
+            for t in tickers:
+                stock_count = conn.execute(
+                    text("SELECT COUNT(*) FROM stocks WHERE ticker = :ticker"),
+                    {"ticker": t}
+                ).scalar()
+                company_count = conn.execute(
+                    text("SELECT COUNT(*) FROM companies WHERE ticker = :ticker"),
+                    {"ticker": t}
+                ).scalar()
+                results[t] = (stock_count, company_count)
 
-            confirm = input(f"Confirmar deleção de '{ticker}'? [Y/N]: ").strip().lower()
-            if confirm != 'y':
-                print("Operação cancelada.")
-                return
+        print("\nResumo dos tickers encontrados:")
+        for t, (sc, cc) in results.items():
+            print(f"  {t}: {sc} registros em 'stocks', {cc} em 'companies'")
 
-            with engine.begin() as conn:
-                conn.execute(text("DELETE FROM stocks WHERE ticker = :ticker"), {"ticker": ticker})
-                conn.execute(text("DELETE FROM companies WHERE ticker = :ticker"), {"ticker": ticker})
+        confirm = input(f"\nConfirmar deleção de {len(tickers)} tickers? [Y/N]: ").strip().lower()
+        if confirm != "y":
+            print("Operação cancelada.")
+            return
 
-            print(f"Ticker '{ticker}' deletado com sucesso de ambas as tabelas.")
-        except Exception as e:
-            print(f"Erro ao deletar ticker '{ticker}':", e)
+        # Deleta todos dentro de uma transação
+        with engine.begin() as conn:
+            conn.execute(text("DELETE FROM stocks WHERE ticker = ANY(:tickers)"), {"tickers": tickers})
+            conn.execute(text("DELETE FROM companies WHERE ticker = ANY(:tickers)"), {"tickers": tickers})
+
+        print(f"\nTickers {tickers} deletados com sucesso.")
+    except Exception as e:
+        print(f"Erro ao deletar tickers {tickers}: {e}")
+
 
 if __name__ == "__main__":
-    ticker = input("Digite o ticker a ser deletado: ").strip().upper()
-    delete_ticker(ticker)
+    raw = input("Digite os tickers a serem deletados (separados por vírgula): ")
+    tickers = [t.strip() for t in raw.split(",") if t.strip()]
+    delete_tickers(tickers)
